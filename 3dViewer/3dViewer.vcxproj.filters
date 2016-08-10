@@ -65,7 +65,7 @@
     <ClCompile Include="GeneratedFiles\Release\moc_scenemodifier.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="main (2).cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

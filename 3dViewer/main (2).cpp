@@ -1,139 +1,176 @@
-/****************************************************************************
-**
-** Copyright (C) 2014 Klaralvdalens Datakonsult AB (KDAB).
-** Contact: http://www.qt-project.org/legal
-**
-** This file is part of the Qt3D module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL3$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+#include <iostream>  
+#include <stdlib.h>  
+#include <opencv.hpp>
+#include <math.h>  
+#include <glut.h>  
+using namespace std;
+using namespace cv;
 
-#include "scenemodifier.h"
+float imgdata[450][620];
+int w = 0;
+int h = 0;
+float scalar = 50;//scalar of converting pixel color to float coordinates  
 
-#include <QGuiApplication>
+#define pi 3.1415926  
+bool mouseisdown = false;
+bool loopr = false;
+int mx, my;
+int ry = 10;
+int rx = 10;
 
-#include <window.h>
-#include <Qt3DCore/qcamera.h>
-#include <Qt3DCore/qentity.h>
-#include <Qt3DCore/qcameralens.h>
-
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QCheckBox>
-#include <QtWidgets/QCommandLinkButton>
-#include <QtGui/QScreen>
-
-#include <Qt3DInput/QInputAspect>
-
-#include <Qt3DRender/qtorusmesh.h>
-#include <Qt3DRender/qmesh.h>
-#include <Qt3DRender/qtechnique.h>
-#include <Qt3DRender/qmaterial.h>
-#include <Qt3DRender/qeffect.h>
-#include <Qt3DRender/qtexture.h>
-#include <Qt3DRender/qrenderpass.h>
-#include <Qt3DRender/qsceneloader.h>
-
-#include <Qt3DCore/qtransform.h>
-#include <Qt3DCore/qaspectengine.h>
-
-#include <Qt3DRender/qrenderaspect.h>
-#include <Qt3DRender/qframegraph.h>
-#include <Qt3DRender/qforwardrenderer.h>
-
-int main(int argc, char **argv)
+void timer(int p)
 {
-    QApplication app(argc, argv);
-    Window *view = new Window();
-    QWidget *container = QWidget::createWindowContainer(view);
-    QSize screenSize = view->screen()->size();
-    container->setMinimumSize(QSize(200, 100));
-    container->setMaximumSize(screenSize);
-
-    QWidget *widget = new QWidget;
-    QHBoxLayout *hLayout = new QHBoxLayout(widget);
-    QVBoxLayout *vLayout = new QVBoxLayout();
-    vLayout->setAlignment(Qt::AlignTop);
-    hLayout->addWidget(container, 1);
-    hLayout->addLayout(vLayout);
-
-    widget->setWindowTitle(QStringLiteral("Basic shapes"));
-
-    Qt3DCore::QAspectEngine engine;
-    engine.registerAspect(new Qt3DRender::QRenderAspect());
-    Qt3DInput::QInputAspect *input = new Qt3DInput::QInputAspect;
-    engine.registerAspect(input);
-    QVariantMap data;
-    data.insert(QStringLiteral("surface"), QVariant::fromValue(static_cast<QSurface *>(view)));
-    data.insert(QStringLiteral("eventSource"), QVariant::fromValue(view));
-    engine.setData(data);
-
-    // Root entity
-    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
-
-    // Camera
-    Qt3DCore::QCamera *cameraEntity = new Qt3DCore::QCamera(rootEntity);
-    cameraEntity->setObjectName(QStringLiteral("cameraEntity"));
-
-    cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
-    cameraEntity->setPosition(QVector3D(0, 0, -20.0f));
-    cameraEntity->setUpVector(QVector3D(0, 1, 0));
-    cameraEntity->setViewCenter(QVector3D(0, 0, 0));
-    input->setCamera(cameraEntity);
-
-    // FrameGraph
-    Qt3DRender::QFrameGraph *frameGraph = new Qt3DRender::QFrameGraph();
-    Qt3DRender::QForwardRenderer *forwardRenderer = new Qt3DRender::QForwardRenderer();
-
-    forwardRenderer->setCamera(cameraEntity);
-    forwardRenderer->setClearColor(QColor(QRgb(0x4d4d4f)));
-    frameGraph->setActiveFrameGraph(forwardRenderer);
-
-    // Setting the FrameGraph
-    rootEntity->addComponent(frameGraph);
-
-    // Scenemodifier
-    SceneModifier *modifier = new SceneModifier(rootEntity);
-
-    // Set root object of the scene
-    engine.setRootEntity(rootEntity);
+	ry -= 5;
+	//marks the current window as needing to be redisplayed.  
+	glutPostRedisplay();
+	if (loopr)
+		glutTimerFunc(200, timer, 0);
+}
 
 
-    // Show window
-    widget->show();
-    widget->resize(1200, 800);
+void mouse(int button, int state, int x, int y)
+{
+	if (button == GLUT_LEFT_BUTTON)
+	{
+		if (state == GLUT_DOWN)
+		{
+			mouseisdown = true;
+			loopr = false;
+		}
+		else
+		{
+			mouseisdown = false;
+		}
+	}
 
-    // Update the aspect ratio
-    QSize widgetSize =  container->size();
-    float aspectRatio = float(widgetSize.width()) / float(widgetSize.height());
-    cameraEntity->lens()->setPerspectiveProjection(45.0f, aspectRatio, 0.1f, 1000.0f);
+	if (button == GLUT_RIGHT_BUTTON)
+		if (state == GLUT_DOWN)
+		{
+			loopr = true; glutTimerFunc(200, timer, 0);
+		}
+}
 
-    return app.exec();
+void motion(int x, int y)
+{
+	if (mouseisdown == true)
+	{
+		ry += x - mx;
+		rx += y - my;
+		mx = x;
+		my = y;
+		glutPostRedisplay();
+	}
+}
+
+void special(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_LEFT:
+		ry -= 5;
+		glutPostRedisplay();
+		break;
+	case GLUT_KEY_RIGHT:
+		ry += 5;
+		glutPostRedisplay();
+		break;
+	case GLUT_KEY_UP:
+		rx += 5;
+		glutPostRedisplay();
+		break;
+	case GLUT_KEY_DOWN:
+		rx -= 5;
+		glutPostRedisplay();
+		break;
+	}
+}
+void renderScene(void) {
+
+	glClear(GL_COLOR_BUFFER_BIT);
+	glLoadIdentity();// Reset the coordinate system before modifying  
+	gluLookAt(0.0, 0.0, 7.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0);
+	//to invert the image  
+	glRotatef(ry, 0, 1, 0);
+	glRotatef(rx - 180, 1, 0, 0);
+
+	float imageCenterX = w*.5;
+	float imageCenterY = h*.5;
+	float x, y, z;
+
+	glPointSize(1.0);
+	glBegin(GL_POINTS);//GL_POINTS  
+	for (int i = 0; i < h; i++){
+		for (int j = 0; j < w; j++){
+			// color interpolation  
+			glColor3f(1 - imgdata[i][j] / 255, imgdata[i][j] / 255, imgdata[i][j] / 255);//red,green,blue  
+			x = ((float)j - imageCenterX) / scalar;
+			y = ((float)i - imageCenterY) / scalar;
+			z = (255 - imgdata[i][j]) / scalar;
+			glVertex3f(x, y, z);
+		}
+	}
+	glEnd();
+	glFlush();
+}
+
+void reshape(int w, int h) {
+	glViewport(0, 0, (GLsizei)w, (GLsizei)h);//set viewpoint  
+	glMatrixMode(GL_PROJECTION);//specify which matrix is the current matrix  
+	glLoadIdentity();//replace the current matrix with the identity matrix  
+	gluPerspective(60, (GLfloat)w / (GLfloat)h, 1.0, 100.0);
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void displayDisparity(InputArray disparity){
+	//double xyscale=100;  
+	int j = 0;
+	int i = 0;
+	Mat t_dis = disparity.getMat();
+
+	//accessing the image pixels  
+	for (i = 0; i < h; i++){
+		for (j = 0; j < w; j++){
+			imgdata[i][j] = t_dis.at<char>(i, j);//for disparity is a grey image.  
+			//cout << imgdata[i][j]<<endl;  
+		}
+	}
+}
+char *name1 = R"(E:\DATA\Pic\gray3.jpg)";
+
+int main(int argc, char *argv[])
+{
+	cout << "OpenCV and OpenGL works together!" << endl;
+	char* filename = argv[1];
+#ifdef _DEBUG
+	filename = name1;
+#endif // _DEBUG
+	Mat src = imread(filename, 0); //read image as a grey one  
+	if (src.empty()){
+		cout << "No valid image input." << endl;
+		return 1;
+	}
+	w = src.cols;
+	h = src.rows;
+
+	displayDisparity(src);
+	imshow("org", src);
+
+	//------------------OpenGL-------------------------  
+	glutInit(&argc, argv);//initialize the GLUT library  
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_SINGLE | GLUT_RGBA);//sets the initial display mode  
+	glutInitWindowPosition(100, 100);
+	glutInitWindowSize(500, 500);
+	glutCreateWindow("3D disparity image");
+	glutDisplayFunc(renderScene);
+
+	glutReshapeFunc(reshape);
+	glutMouseFunc(mouse);
+	glutMotionFunc(motion);
+	glutSpecialFunc(special);
+	glutMainLoop();
+
+
+	waitKey(0);
+
+	return 0;
 }
