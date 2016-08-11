@@ -58,4 +58,5 @@ void C3DViewer::inputPointCloud(){
 		t_3dp.value = context[3].toDouble();
 		m_pcScene.addPointCloud(t_3dp);
 	}
+	m_pcScene.reset();
 }
