@@ -20,7 +20,6 @@
 #include <Qt3DRender/qforwardrenderer.h>
 #include <QFileDialog>
 #include <QStringList>
-#include "scenemodifier.h"
 
 C3DViewer::C3DViewer(QWidget *parent)
 	: QMainWindow(parent)
@@ -28,8 +27,6 @@ C3DViewer::C3DViewer(QWidget *parent)
 	ui.setupUi(this);
 	initWindow();
 #ifdef _DEBUG
-	SceneModifier t_modifier(&m_entity);
-	t_modifier.addPoint(QVector3D(-5.0f, -4.0f, 0.0f), 3);
 #endif // _DEBUG
 	
 }
@@ -40,45 +37,12 @@ C3DViewer::~C3DViewer()
 }
 
 void C3DViewer::initWindow(){
-	ui.widget = QWidget::createWindowContainer(&m_3Dwindow);
-	m_engine.registerAspect(new Qt3DRender::QRenderAspect());
-	Qt3DInput::QInputAspect *input = new Qt3DInput::QInputAspect();
-	m_engine.registerAspect(input);
-	QVariantMap data;
-	data.insert(QStringLiteral("surface"), QVariant::fromValue(static_cast<QSurface *>(&m_3Dwindow)));
-	data.insert(QStringLiteral("eventSource"), QVariant::fromValue(&m_3Dwindow));
-	m_engine.setData(data);
-	// Camera
-	Qt3DCore::QCamera *cameraEntity = new Qt3DCore::QCamera(&m_entity);
-	cameraEntity->setObjectName(QStringLiteral("cameraEntity"));
-	cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
-	cameraEntity->setPosition(QVector3D(0, 0, -20.0f));
-	cameraEntity->setUpVector(QVector3D(0, 1, 0));
-	cameraEntity->setViewCenter(QVector3D(0, 0, 0));
-	input->setCamera(cameraEntity);
-
-	// FrameGraph
-	Qt3DRender::QFrameGraph *frameGraph = new Qt3DRender::QFrameGraph();
-	Qt3DRender::QForwardRenderer *forwardRenderer = new Qt3DRender::QForwardRenderer();
-
-	forwardRenderer->setCamera(cameraEntity);
-	forwardRenderer->setClearColor(QColor(QRgb(0x4d4d4f)));
-	frameGraph->setActiveFrameGraph(forwardRenderer);
-
-	// Setting the FrameGraph
-	m_entity.addComponent(frameGraph);
-	// Set root object of the scene
-	m_engine.setRootEntity(&m_entity);
-
-	// Update the aspect ratio//???
-	QSize widgetSize = ui.widget->size();
-	float aspectRatio = float(widgetSize.width()) / float(widgetSize.height());
-	cameraEntity->lens()->setPerspectiveProjection(45.0f, aspectRatio, 0.1f, 1000.0f);
+	
 }
 
 void C3DViewer::inputPointCloud(){
 	QString t_filename=QFileDialog::getOpenFileName(this, "选择点云txt文件", "",  "*.txt");
-	SceneModifier t_modifier(&m_entity);
+	
 	QFile t_file(t_filename);
 	t_file.open(QIODevice::ReadOnly);
 	while (!t_file.atEnd()){
@@ -87,6 +51,6 @@ void C3DViewer::inputPointCloud(){
 		for (int i = 0; i < 3 ; i++){
 			t_3dp[0] = t_file.read(10).toDouble();
 		}
-		t_modifier.addPoint(t_3dp, 3);
+		
 	}
 }
