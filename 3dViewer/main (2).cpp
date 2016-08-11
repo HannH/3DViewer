@@ -3,6 +3,7 @@
 #include <opencv.hpp>
 #include <math.h>  
 #include <glut.h>  
+#include "c3dviewer.h"
 using namespace std;
 using namespace cv;
 
@@ -17,6 +18,8 @@ bool loopr = false;
 int mx, my;
 int ry = 10;
 int rx = 10;
+int xx=0, yy = 0;
+float imageCenterX, imageCenterY;
 
 void timer(int p)
 {
@@ -67,19 +70,19 @@ void special(int key, int x, int y)
 	switch (key)
 	{
 	case GLUT_KEY_LEFT:
-		ry -= 5;
+		imageCenterY -= 1;
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_RIGHT:
-		ry += 5;
+		imageCenterY += 1;
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_UP:
-		rx += 5;
+		scalar += 1;
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_DOWN:
-		rx -= 5;
+		scalar -= 1;
 		glutPostRedisplay();
 		break;
 	}
@@ -88,13 +91,12 @@ void renderScene(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	glLoadIdentity();// Reset the coordinate system before modifying  
-	gluLookAt(0.0, 0.0, 7.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0);
+	gluLookAt(0, 0, -1, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	//to invert the image  
 	glRotatef(ry, 0, 1, 0);
 	glRotatef(rx - 180, 1, 0, 0);
 
-	float imageCenterX = w*.5;
-	float imageCenterY = h*.5;
+	
 	float x, y, z;
 
 	glPointSize(1.0);
@@ -139,7 +141,7 @@ char *name1 = R"(E:\DATA\Pic\gray3.jpg)";
 
 int main(int argc, char *argv[])
 {
-	cout << "OpenCV and OpenGL works together!" << endl;
+	/*cout << "OpenCV and OpenGL works together!" << endl;
 	char* filename = argv[1];
 #ifdef _DEBUG
 	filename = name1;
@@ -151,6 +153,8 @@ int main(int argc, char *argv[])
 	}
 	w = src.cols;
 	h = src.rows;
+	imageCenterX = w*.5;
+	imageCenterY = h*.5;
 
 	displayDisparity(src);
 	imshow("org", src);
@@ -170,7 +174,10 @@ int main(int argc, char *argv[])
 	glutMainLoop();
 
 
-	waitKey(0);
-
-	return 0;
+	waitKey(0);*/
+	QApplication a(argc, argv);
+	C3DViewer w;
+	w.show();
+	return a.exec();
+	
 }

@@ -20,11 +20,13 @@
 #include <Qt3DRender/qforwardrenderer.h>
 #include <QFileDialog>
 #include <QStringList>
+# pragma execution_character_set("utf-8")
 
 C3DViewer::C3DViewer(QWidget *parent)
-	: QMainWindow(parent)
+	: QMainWindow(parent), m_pcScene(parent)
 {
 	ui.setupUi(this);
+	//ui.scrollArea->setWidget(m_pcScene);
 	initWindow();
 #ifdef _DEBUG
 #endif // _DEBUG
@@ -37,7 +39,7 @@ C3DViewer::~C3DViewer()
 }
 
 void C3DViewer::initWindow(){
-	
+	ui.verticalLayout->addWidget(&m_pcScene);
 }
 
 void C3DViewer::inputPointCloud(){
@@ -45,12 +47,15 @@ void C3DViewer::inputPointCloud(){
 	
 	QFile t_file(t_filename);
 	t_file.open(QIODevice::ReadOnly);
+	PointCloudEle t_3dp;
+	m_pcScene.clearCpd();
 	while (!t_file.atEnd()){
-		QVector3D t_3dp;
-		QString pointName = QString::fromLocal8Bit(t_file.read(20));
+		QStringList context = QString::fromLocal8Bit(t_file.readLine()).split(" ");
+		QString pointName = context[0];
 		for (int i = 0; i < 3 ; i++){
-			t_3dp[0] = t_file.read(10).toDouble();
+			t_3dp.geo[i] = context[i+1].toDouble();
 		}
-		
+		t_3dp.value = context[3].toDouble();
+		m_pcScene.addPointCloud(t_3dp);
 	}
 }

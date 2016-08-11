@@ -2,8 +2,7 @@
 #define C3DVIEWER_H
 
 #include <QtWidgets/QMainWindow>
-#include <Qt3DCore/qentity.h>
-#include <Qt3DCore/qaspectengine.h>
+#include "glwidget.h"
 #include "ui_c3dviewer.h"
 
 class C3DViewer : public QMainWindow
@@ -16,10 +15,9 @@ public:
 
 private:
 	Ui::C3DViewerClass ui;
-	Qt3DCore::QAspectEngine m_engine;
-	Qt3DCore::QEntity m_entity;
+	GLWidget m_pcScene;
+	
 	void initWindow();//Ë¢ÐÂ´°¿Ú
-
 private slots:
 	void inputPointCloud();
 

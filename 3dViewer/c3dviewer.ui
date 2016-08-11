@@ -14,16 +14,11 @@
    <string>C3DViewer</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="widget" native="true">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>491</width>
-      <height>441</height>
-     </rect>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout"/>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -61,5 +56,25 @@
  <resources>
   <include location="c3dviewer.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionDakai</sender>
+   <signal>triggered()</signal>
+   <receiver>C3DViewerClass</receiver>
+   <slot>inputPointCloud()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>331</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>inputPointCloud()</slot>
+ </slots>
 </ui>

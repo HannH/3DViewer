@@ -19,6 +19,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -28,7 +29,8 @@ class Ui_C3DViewerClass
 public:
     QAction *actionDakai;
     QWidget *centralWidget;
-    QWidget *widget;
+    QVBoxLayout *verticalLayout_2;
+    QVBoxLayout *verticalLayout;
     QMenuBar *menuBar;
     QMenu *menu;
     QToolBar *mainToolBar;
@@ -43,9 +45,16 @@ public:
         actionDakai->setObjectName(QStringLiteral("actionDakai"));
         centralWidget = new QWidget(C3DViewerClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        widget = new QWidget(centralWidget);
-        widget->setObjectName(QStringLiteral("widget"));
-        widget->setGeometry(QRect(0, 0, 491, 441));
+        verticalLayout_2 = new QVBoxLayout(centralWidget);
+        verticalLayout_2->setSpacing(6);
+        verticalLayout_2->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setSpacing(6);
+        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+
+        verticalLayout_2->addLayout(verticalLayout);
+
         C3DViewerClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(C3DViewerClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -64,6 +73,7 @@ public:
         menu->addAction(actionDakai);
 
         retranslateUi(C3DViewerClass);
+        QObject::connect(actionDakai, SIGNAL(triggered()), C3DViewerClass, SLOT(inputPointCloud()));
 
         QMetaObject::connectSlotsByName(C3DViewerClass);
     } // setupUi
